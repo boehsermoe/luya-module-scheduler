@@ -2,7 +2,7 @@
 
 namespace luya\scheduler\commands;
 
-use luya\scheduler\models\Job;
+use luya\scheduler\models\BaseJob;
 use luya\backup\Module;
 use luya\helpers\Json;
 
@@ -12,7 +12,7 @@ use luya\helpers\Json;
  * @property Module $module
  * @author Bennet Klarhoelter <boehsermoe@me.com>
  */
-class SchedulerController extends \luya\console\Command
+class RunController extends \luya\console\Command
 {
 	public function actionIndex()
 	{
@@ -25,7 +25,7 @@ class SchedulerController extends \luya\console\Command
 				$this->outputSuccess("Starting job {$job->fullName}");
 
 				try {
-					$this->module->createBackup([$job]);
+					$job->run();
 					$this->outputSuccess("Finished job {$job->fullName}");
 				}
 				catch (\Throwable $ex) {
@@ -39,21 +39,10 @@ class SchedulerController extends \luya\console\Command
 		}
 	}
 
-	public function actionRun($jobId, $exportDir = null)
+	public function actionNow($jobId)
 	{
-		$job = Job::findOne($jobId);
+		$job = BaseJob::findOne($jobId);
 
-		$this->module->createBackup([$job], $exportDir);
-	}
-
-	public function actionList()
-	{
-		/** @var Job[] $jobs */
-		$jobs = Job::find()->all();
-
-		foreach ($jobs as $job) {
-			$options = Json::encode($job->options);
-			$this->output("{$job->id} - {$job->name} ({$job->class}): {$options}");
-		}
+		$job->run();
 	}
 }

@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Class m180123_070338_Job
  */
-class m180123_070338_Job extends Migration
+class m180123_070338_SchedulerJob extends Migration
 {
 	const TABLENAME = 'scheduler_job';
 
@@ -16,7 +16,7 @@ class m180123_070338_Job extends Migration
     {
     	$this->createTable(self::TABLENAME, [
     		'id' => $this->primaryKey(),
-		    'name' => $this->string()->notNull(),
+		    'name' => $this->string()->unique()->notNull(),
 		    'class' => $this->string()->notNull(),
 		    'schedule' => $this->string()->notNull(),
 		    'last_run' => $this->timestamp(),

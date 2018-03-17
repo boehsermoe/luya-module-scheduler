@@ -18,7 +18,11 @@
     }
   },
   "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    },
     "luya" : {
+      "schedules" : ["src/schedules"]
     }
   },
   "config": {
