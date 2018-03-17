@@ -5,6 +5,7 @@ namespace luya\scheduler\commands;
 use luya\scheduler\models\Job;
 use luya\backup\Module;
 use luya\helpers\Json;
+use yii\helpers\Console;
 
 /**
  * Class SchedulerController
@@ -14,14 +15,20 @@ use luya\helpers\Json;
  */
 class ListController extends \luya\console\Command
 {
+	/**
+	 * Listing all available jobs
+	 */
 	public function actionIndex()
 	{
+		$this->outputInfo('Available jobs:');
+
 		/** @var Job[] $jobs */
 		$jobs = Job::find()->all();
 
 		foreach ($jobs as $job) {
 			$options = Json::encode($job->options);
-			$this->output("{$job->id} - {$job->name} ({$job->class}): {$options}");
+			$jobName = $this->ansiFormat($job->name, Console::FG_GREEN);
+			$this->output("{$job->id}: {$jobName} ({$job->class})");
 		}
 	}
 }

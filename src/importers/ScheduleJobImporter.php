@@ -5,6 +5,7 @@ namespace luya\scheduler\importers;
 use Yii;
 use luya\console\Importer;
 use luya\scheduler\models\JobType;
+use yii\console\Exception;
 
 /**
  * Schedule Job Importer.
@@ -20,21 +21,40 @@ class ScheduleJobImporter extends Importer
 		$allJobTypes = JobType::find()->all();
 		$exists = [];
 
-		foreach ($this->getImporter()->getDirectoryFiles('schedules') as $file) {
-			$exists[] = $this->saveJobType($file['ns']);
-		}
+		/**
+		 * @todo Extend the \luya\console\commands\ImportController::_scanFolders variable
+		 */
+		// Search for schedules folder in all modules
+		$folderName = 'schedules';
+		foreach (Yii::$app->getApplicationModules() as $id => $module) {
+			$path = $module->getBasePath().DIRECTORY_SEPARATOR.$folderName;
+			if (file_exists($path)) {
+				$ns = '\\' . $module->getNamespace() . '\\' . $folderName;
 
-		foreach (Yii::$app->packageInstaller->configs as $config) {
-			foreach ($config->jobTypes as $jobType) {
-				if (is_file($jobType)) {
-					$exists[] = $this->saveJobTypeByPath($jobType);
-				} elseif (is_dir($jobType)) {
-					foreach (FileHelper::findFiles($jobType) as $jobTypeItem) {
-						$exists[] = $this->saveJobTypeByPath($jobTypeItem);
+				foreach (scandir($path) as $file) {
+					if (substr($file, 0, 1) !== '.') {
+						$fullClassName = $ns.'\\'.pathinfo($file, PATHINFO_FILENAME);
+						$exists[] = $this->saveJobType($fullClassName);
 					}
 				}
+
 			}
 		}
+
+		/**
+		 * @todo Extend packageConfig in \luya\composer\Installer::ensureConfig
+		 */
+//		foreach (Yii::$app->packageInstaller->configs as $config) {
+//			foreach ($config->jobTypes as $jobType) {
+//				if (is_file($jobType)) {
+//					$exists[] = $this->saveJobTypeByPath($jobType);
+//				} elseif (is_dir($jobType)) {
+//					foreach (FileHelper::findFiles($jobType) as $jobTypeItem) {
+//						$exists[] = $this->saveJobTypeByPath($jobTypeItem);
+//					}
+//				}
+//			}
+//		}
 
 		foreach ($allJobTypes as $jobType) {
 			if (!in_array($jobType->id, $exists)) {
@@ -53,8 +73,14 @@ class ScheduleJobImporter extends Importer
 		if (!$model) {
 			$model = new JobType();
 			$model->class = $fullClassName;
-			$model->save();
-			$this->addLog("+ Added jobType '{$fullClassName}' to database.");
+			$model->name = $fullClassName::label();
+
+			if ($model->save()) {
+				$this->addLog("+ Added jobType '{$fullClassName}' to database.");
+			}
+			else {
+				throw new Exception(__CLASS__ . " - JobType could not saved. " . implode("\n", $model->firstErrors));
+			}
 		}
 
 		return $model->id;

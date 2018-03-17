@@ -3,16 +3,11 @@
 namespace luya\scheduler\schedules;
 
 use luya\scheduler\models\BaseJob;
+use yii\helpers\Console;
 
 class CommandJob extends BaseJob
 {
-	/**
-	 * @inheritdoc
-	 */
-	public static function ngRestApiEndpoint()
-	{
-		return 'api-backup-file-job';
-	}
+	public $command;
 
 	public function rules()
 	{
@@ -32,12 +27,12 @@ class CommandJob extends BaseJob
 	public function ngrestExtraAttributeTypes()
 	{
 		return [
-			'command' => 'text',
+			'command' => ['text', 'placeholder' => './vendor/bin/luya {command}'],
 		];
 	}
 
 	public function run()
 	{
-		echo "Not yet implemented.";
+		\Yii::$app->runAction($this->command);
 	}
 }

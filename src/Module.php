@@ -4,6 +4,7 @@ namespace luya\scheduler;
 
 use luya\console\interfaces\ImportControllerInterface;
 use luya\scheduler\importers\ScheduleJobImporter;
+use luya\scheduler\models\JobType;
 
 /**
  * Scheduler Admin Module.
@@ -19,15 +20,36 @@ class Module extends \luya\admin\base\Module
 //		'api-scheduler-execute' => 'luya\scheduler\apis\ExecuteJobController',
 	];
 
+	public function init()
+	{
+		parent::init();
+
+		if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
+			/** @var JobType[] $jobTypes */
+			$jobTypes = JobType::find()->cache(86400)->all();
+			foreach ($jobTypes as $jobType) {
+				$this->apis['api-scheduler-job-' . $jobType->name] = 'luya\scheduler\apis\JobController';
+			}
+		}
+	}
+
 	public function getMenu()
 	{
-		return (new \luya\admin\components\AdminMenuBuilder($this))
+		$adminMenuBuilder = (new \luya\admin\components\AdminMenuBuilder($this))
 			->node('Scheduler', 'schedule')
-			->itemApi('Jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job')
-			->itemApi('JobType', 'scheduler/job-type/index', 'label', 'api-scheduler-jobtype')
+			->group('Jobs');
+
+		/** @var JobType[] $jobTypes */
+		$jobTypes = JobType::find()->cache(86400)->all();
+		foreach ($jobTypes as $jobType) {
+			$adminMenuBuilder->itemApi($jobType->name, $this->uniqueId . '/job/index?jobTypeClass=' . $jobType->class, 'label', 'api-scheduler-job-' . $jobType->name);
+		}
+
 
 //			->itemRoute("History", 'backup/scheduler/history', "poll")
-			;
+
+
+		return $adminMenuBuilder;
 	}
 
 	/**

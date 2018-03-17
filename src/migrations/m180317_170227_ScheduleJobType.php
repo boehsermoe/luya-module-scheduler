@@ -16,6 +16,7 @@ class m180317_170227_ScheduleJobType extends Migration
 	{
 		$this->createTable(self::TABLENAME, [
 			'id' => $this->primaryKey(),
+			'name' => $this->string()->unique()->notNull(),
 			'class' => $this->string()->notNull(),
 		]);
 	}

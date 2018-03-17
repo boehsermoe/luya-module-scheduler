@@ -1,6 +1,7 @@
 <?php
 
 namespace luya\scheduler\apis;
+use luya\scheduler\models\JobType;
 
 /**
  * Job Controller.
@@ -14,14 +15,22 @@ class JobController extends \luya\admin\ngrest\base\Api
      */
     public $modelClass = 'luya\scheduler\models\Job';
 
+	public function init()
+	{
+		$jobTypeName = end(explode('-', $this->id));
+		$jobType = JobType::findOne(['name' => $jobTypeName]);
+
+		$this->modelClass = $jobType->class;
+
+		parent::init();
+	}
+
 	/**
 	 * @inheritdoc
 	 */
 	public function actions()
 	{
 		$actions = parent::actions();
-		unset($actions['create']);
-		unset($actions['update']);
 
 		return $actions;
 	}

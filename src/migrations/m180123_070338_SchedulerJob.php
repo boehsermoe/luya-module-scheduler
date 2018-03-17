@@ -20,6 +20,7 @@ class m180123_070338_SchedulerJob extends Migration
 		    'class' => $this->string()->notNull(),
 		    'schedule' => $this->string()->notNull(),
 		    'last_run' => $this->timestamp(),
+		    'last_run' => $this->text(),
 		    'options' => $this->text(),
 	    ]);
     }

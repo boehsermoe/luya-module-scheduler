@@ -3,10 +3,15 @@
 namespace luya\scheduler\models;
 
 use app\modules\backup\aws\ExecuteJobActiveWindow;
+use luya\admin\aws\DetailViewActiveWindow;
+use luya\console\Controller;
+use Psr\Log\LoggerTrait;
+use Psr\Log\LogLevel;
 use Yii;
 use luya\admin\ngrest\base\NgRestModel;
 use yii\base\ErrorException;
 use yii\db\ActiveQuery;
+use yii\helpers\Console;
 use yii\helpers\Json;
 use yii\helpers\VarDumper;
 
@@ -20,12 +25,15 @@ use yii\helpers\VarDumper;
  * @property string $class
  * @property string $schedule
  * @property string $last_run
+ * @property string $log
  * @property array $options Json
  *
  * @property string $fullName
  */
 abstract class BaseJob extends NgRestModel
 {
+	use LoggerTrait;
+
 	const EVERY_MINUTE = '1minute';
 	const EVERY_HOUR = '1hour';
 	const EVERY_DAY = '1day';
@@ -41,12 +49,17 @@ abstract class BaseJob extends NgRestModel
         return 'scheduler_job';
     }
 
+    public static function label()
+    {
+	    return \yii\helpers\StringHelper::basename(static::class);
+    }
+
 	/**
 	 * @inheritdoc
 	 */
 	public static function ngRestApiEndpoint()
 	{
-		return 'api-scheduler-job';
+		return 'api-scheduler-job-' . self::label();
 	}
 
 	public static function instantiate($row)
@@ -91,6 +104,7 @@ abstract class BaseJob extends NgRestModel
 		    [['schedule'], 'string'],
 		    [['name', 'class'], 'string', 'max' => 255],
 		    [['name', 'schedule'], 'required'],
+		    [['name'], 'unique'],
 		    [$this->extraFields(), 'safe'],
 	    ];
     }
@@ -119,6 +133,19 @@ abstract class BaseJob extends NgRestModel
 	        ]]
         ];
     }
+
+	/**
+	 * @inheritdoc
+	 */
+	public function ngRestActiveWindows()
+	{
+		return [
+			[
+				'class' => DetailViewActiveWindow::class,
+//				'attributes' => $this->attributes()
+			],
+		];
+	}
 
 	/**
      * @inheritdoc
@@ -208,4 +235,33 @@ abstract class BaseJob extends NgRestModel
 		return $this->nextSchedule;
 	}
 
+	public function log($level, $message, array $context = array())
+	{
+		$format = [];
+		switch ($level) {
+			case LogLevel::EMERGENCY:
+			case LogLevel::ALERT:
+			case LogLevel::CRITICAL:
+			case LogLevel::ERROR:
+				$format[] = Console::FG_RED;
+				break;
+			case LogLevel::WARNING:
+			case LogLevel::NOTICE:
+				$format[] = Console::FG_YELLOW;
+				break;
+			case LogLevel::INFO:
+				$format[] = Console::FG_BLUE;
+				break;
+			case LogLevel::DEBUG:
+				break;
+		}
+
+		$datetime = date("Y-m-d H:i:s");
+		$formattedMessage = "\r{$datetime} [{$this->name}] [$level]\t" . Console::ansiFormat($message, $format)  . "\n";
+
+		/** @var BaseJob $job */
+		$job = $this;
+		$job->log .= $formattedMessage;
+		echo $formattedMessage;
+	}
 }

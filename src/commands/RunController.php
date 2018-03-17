@@ -5,6 +5,7 @@ namespace luya\scheduler\commands;
 use luya\scheduler\models\BaseJob;
 use luya\backup\Module;
 use luya\helpers\Json;
+use yii\helpers\Console;
 
 /**
  * Class SchedulerController
@@ -39,10 +40,29 @@ class RunController extends \luya\console\Command
 		}
 	}
 
-	public function actionNow($jobId)
+	/**
+	 * Execute given job.
+	 *
+	 * @param int|string $jobId Id oder name of job
+	 */
+	public function actionNow($jobId = null)
 	{
-		$job = BaseJob::findOne($jobId);
+		if ($jobId === null) {
+			$this->outputError('Require a jobId.');
+			\Yii::$app->runAction($this->module->id . '/list');
+			return;
+		}
 
+		/** @var BaseJob $job */
+		$job = BaseJob::find()->where(['or',
+			['id' => $jobId],
+			['name' => $jobId]
+		])->one();
+
+		$job->log = null;
+		$job->info("Running job {$job->class}");
 		$job->run();
+		$job->info('Done.');
+
 	}
 }
