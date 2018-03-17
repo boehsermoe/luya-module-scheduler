@@ -12,5 +12,12 @@ namespace luya\scheduler;
  */
 class Module extends \luya\admin\base\Module
 {
-
+	public function getMenu()
+	{
+		return (new \luya\admin\components\AdminMenuBuilder($this))
+			->node('Scheduler', 'schedule')
+			->itemRoute("Current", 'backup/scheduler/index', "poll")
+//			->itemRoute("History", 'backup/scheduler/history', "poll")
+			;
+	}
 }
