@@ -5,12 +5,14 @@ namespace luya\scheduler\models;
 use app\modules\backup\aws\ExecuteJobActiveWindow;
 use luya\admin\aws\DetailViewActiveWindow;
 use luya\console\Controller;
+use luya\scheduler\plugins\ScheduleTimePlugin;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
 use Yii;
 use luya\admin\ngrest\base\NgRestModel;
 use yii\base\ErrorException;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 use yii\helpers\Console;
 use yii\helpers\Json;
 use yii\helpers\VarDumper;
@@ -34,12 +36,10 @@ abstract class BaseJob extends NgRestModel
 {
 	use LoggerTrait;
 
-	const EVERY_MINUTE = '1minute';
-	const EVERY_HOUR = '1hour';
-	const EVERY_DAY = '1day';
-	const EVERY_MONTH = '1month';
-
 	protected static $loadAllClasses = false;
+
+	public $schedule_value;
+	public $schedule_unit;
 
 	/**
      * @inheritdoc
@@ -49,7 +49,7 @@ abstract class BaseJob extends NgRestModel
         return 'scheduler_job';
     }
 
-    public static function label()
+	public static function label()
     {
 	    return \yii\helpers\StringHelper::basename(static::class);
     }
@@ -102,6 +102,9 @@ abstract class BaseJob extends NgRestModel
     {
 	    return [
 		    [['schedule'], 'string'],
+		    [['schedule_value'], 'integer'],
+		    [['schedule_unit'], 'string'],
+
 		    [['name', 'class'], 'string', 'max' => 255],
 		    [['name', 'schedule'], 'required'],
 		    [['name'], 'unique'],
@@ -124,13 +127,15 @@ abstract class BaseJob extends NgRestModel
     {
         return [
             'name' => 'text',
-            'class' => ['selectArray', 'data' => [FileJob::class => 'File Backup', DbJob::class => 'Database Backup']],
-	        'schedule' => ['selectArray', 'data' => [
-		        self::EVERY_MINUTE => Yii::t('app', 'Every minute'),
-		        self::EVERY_HOUR => Yii::t('app', 'Every hour'),
-		        self::EVERY_DAY => Yii::t('app', 'Every day'),
-		        self::EVERY_MONTH => Yii::t('app', 'Every month'),
-	        ]]
+//	        'schedule' => ['class' => ScheduleTimePlugin::className()],
+            'schedule' => 'text',
+	        'schedule_value' => 'number',
+	        'schedule_unit' => ['selectArray', 'data' => [
+		        ScheduleTimePlugin::UNIT_MINUTE => Yii::t('app', 'Minute'),
+		        ScheduleTimePlugin::UNIT_HOUR => Yii::t('app', 'Hour'),
+		        ScheduleTimePlugin::UNIT_DAY => Yii::t('app', 'Day'),
+		        ScheduleTimePlugin::UNIT_WEEK => Yii::t('app', 'Week'),
+	        ]],
         ];
     }
 
@@ -142,7 +147,6 @@ abstract class BaseJob extends NgRestModel
 		return [
 			[
 				'class' => DetailViewActiveWindow::class,
-//				'attributes' => $this->attributes()
 			],
 		];
 	}
@@ -152,12 +156,12 @@ abstract class BaseJob extends NgRestModel
      */
     public function ngRestScopes()
     {
-    	$options = array_merge(['name', 'schedule'], $this->extraFields());
+    	$editOptions = array_merge(['name', 'schedule_value', 'schedule_unit'], $this->extraFields());
 
         return [
-            ['list', $options],
-	        [['create'], $options],
-	        [['update'], $options],
+            ['list', array_merge(['name', 'schedule'], $this->extraFields())],
+	        [['create'], $editOptions],
+	        [['update'], $editOptions],
             ['delete', false],
         ];
     }
@@ -172,11 +176,27 @@ abstract class BaseJob extends NgRestModel
 		return "{$this->name} - {$this->id} ({$this->class}";
 	}
 
+	public function beforeValidate()
+	{
+		$schedule = trim(implode(' ', [$this->schedule_value, $this->schedule_unit]));
+		if ($schedule) {
+			$this->schedule = $schedule;
+		};
+		var_dump($this->schedule);die;
+
+		return parent::beforeValidate();
+	}
+
+
 	public function beforeSave($insert)
 	{
 		$this->class = static::class;
-
 		$this->options = Json::encode($this->getAttributes($this->extraFields()));
+
+		$schedule = trim(implode(' ', [$this->schedule_value, $this->schedule_unit]));
+		if ($schedule) {
+			$this->schedule = $schedule;
+		};
 
 		return parent::beforeSave($insert);
 	}
@@ -185,6 +205,8 @@ abstract class BaseJob extends NgRestModel
 	{
 		$this->options = Json::decode($this->options);
 		$this->setAttributes($this->options);
+
+		list($this->schedule_value, $this->schedule_unit) = explode(' ', $this->schedule);
 
 		return parent::afterFind();
 	}
@@ -198,6 +220,9 @@ abstract class BaseJob extends NgRestModel
 	{
 		if (in_array($name, $this->extraFields())) {
 //			$this->$name = $value;
+		}
+		elseif ($this->hasProperty($name)) {
+			$this->$name = $value;
 		}
 		else {
 			parent::setAttribute($name, $value);
@@ -237,6 +262,31 @@ abstract class BaseJob extends NgRestModel
 
 	public function log($level, $message, array $context = array())
 	{
+		$datetime = date("Y-m-d H:i:s");
+		$logTemplate = "\r{$datetime} [{$this->name}] [$level]\t %s \n";
+
+		$log = sprintf($logTemplate, $message);
+
+		/** @var BaseJob $job */
+		$job = $this;
+		$job->log .= $log;
+		Yii::$app->db->createCommand()->update(
+				$job::tableName(),
+				['log' => new Expression('CONCAT(`log`, :log)', ['log' => $log . "\n\r"])],
+				['id' => $job->id]
+			)
+		->execute();
+
+		$this->output($level, $message, $logTemplate);
+	}
+
+	/**
+	 * @param $level
+	 * @param $message
+	 * @param $logTemplate
+	 */
+	private function output($level, $message, $logTemplate): void
+	{
 		$format = [];
 		switch ($level) {
 			case LogLevel::EMERGENCY:
@@ -256,12 +306,8 @@ abstract class BaseJob extends NgRestModel
 				break;
 		}
 
-		$datetime = date("Y-m-d H:i:s");
-		$formattedMessage = "\r{$datetime} [{$this->name}] [$level]\t" . Console::ansiFormat($message, $format)  . "\n";
+		$ansiMessage = Console::ansiFormat($message, $format);
 
-		/** @var BaseJob $job */
-		$job = $this;
-		$job->log .= $formattedMessage;
-		echo $formattedMessage;
+		echo sprintf($logTemplate, $ansiMessage);
 	}
 }

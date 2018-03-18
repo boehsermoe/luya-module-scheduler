@@ -20,14 +20,17 @@ class Module extends \luya\admin\base\Module
 //		'api-scheduler-execute' => 'luya\scheduler\apis\ExecuteJobController',
 	];
 
+	/** @var JobType[] $jobTypes */
+	private $jobTypes = [];
+
 	public function init()
 	{
 		parent::init();
 
 		if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
 			/** @var JobType[] $jobTypes */
-			$jobTypes = JobType::find()->cache(86400)->all();
-			foreach ($jobTypes as $jobType) {
+			$this->jobTypes = JobType::find()->all();
+			foreach ($this->jobTypes as $jobType) {
 				$this->apis['api-scheduler-job-' . $jobType->name] = 'luya\scheduler\apis\JobController';
 			}
 		}
@@ -39,9 +42,7 @@ class Module extends \luya\admin\base\Module
 			->node('Scheduler', 'schedule')
 			->group('Jobs');
 
-		/** @var JobType[] $jobTypes */
-		$jobTypes = JobType::find()->cache(86400)->all();
-		foreach ($jobTypes as $jobType) {
+		foreach ($this->jobTypes as $jobType) {
 			$adminMenuBuilder->itemApi($jobType->name, $this->uniqueId . '/job/index?jobTypeClass=' . $jobType->class, 'label', 'api-scheduler-job-' . $jobType->name);
 		}
 

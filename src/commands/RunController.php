@@ -15,6 +15,9 @@ use yii\helpers\Console;
  */
 class RunController extends \luya\console\Command
 {
+	/**
+	 * Execute all expired jobs
+	 */
 	public function actionIndex()
 	{
 		/** @var Job[] $jobs */

@@ -2,9 +2,11 @@
 
 namespace luya\scheduler\importers;
 
+use luya\scheduler\models\BaseJob;
 use Yii;
 use luya\console\Importer;
 use luya\scheduler\models\JobType;
+use yii\base\InvalidArgumentException;
 use yii\console\Exception;
 
 /**
@@ -16,28 +18,26 @@ class ScheduleJobImporter extends Importer
 {
 	public function run()
 	{
-		$this->addLog('ScheduleJobImporter have been started');
-
+		$folderName = 'schedules';
 		$allJobTypes = JobType::find()->all();
 		$exists = [];
+
+		$path = Yii::getAlias("@app/$folderName");
+		if (file_exists($path)) {
+			$ns = '\\app\\' . $folderName;
+			$exists = $this->saveAllJobTypes($ns, $path);
+		}
 
 		/**
 		 * @todo Extend the \luya\console\commands\ImportController::_scanFolders variable
 		 */
 		// Search for schedules folder in all modules
-		$folderName = 'schedules';
 		foreach (Yii::$app->getApplicationModules() as $id => $module) {
-			$path = $module->getBasePath().DIRECTORY_SEPARATOR.$folderName;
+			$path = $module->basePath . DIRECTORY_SEPARATOR . $folderName;
 			if (file_exists($path)) {
 				$ns = '\\' . $module->getNamespace() . '\\' . $folderName;
-
-				foreach (scandir($path) as $file) {
-					if (substr($file, 0, 1) !== '.') {
-						$fullClassName = $ns.'\\'.pathinfo($file, PATHINFO_FILENAME);
-						$exists[] = $this->saveJobType($fullClassName);
-					}
-				}
-
+				$founded = $this->saveAllJobTypes($ns, $path);
+				$exists = array_merge($exists, $founded);
 			}
 		}
 
@@ -71,6 +71,10 @@ class ScheduleJobImporter extends Importer
 		$model = JobType::find()->where(['class' => $fullClassName])->one();
 
 		if (!$model) {
+			if (!is_subclass_of($fullClassName, BaseJob::class)) {
+				throw new InvalidArgumentException("$fullClassName must inherit from " . BaseJob::class);
+			}
+
 			$model = new JobType();
 			$model->class = $fullClassName;
 			$model->name = $fullClassName::label();
@@ -112,5 +116,19 @@ class ScheduleJobImporter extends Importer
 	protected function createJobTypeObject($className)
 	{
 		return Yii::createObject(['class' => $className]);
+	}
+
+	private function saveAllJobTypes($namespace, $path): array
+	{
+		$exists = [];
+
+		foreach (scandir($path) as $file) {
+			if (substr($file, 0, 1) !== '.') {
+				$fullClassName = $namespace . '\\' . pathinfo($file, PATHINFO_FILENAME);
+				$exists[] = $this->saveJobType($fullClassName);
+			}
+		}
+
+		return $exists;
 	}
 }

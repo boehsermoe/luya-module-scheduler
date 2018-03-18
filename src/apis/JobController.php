@@ -13,7 +13,7 @@ class JobController extends \luya\admin\ngrest\base\Api
     /**
      * @var string The path to the model which is the provider for the rules and fields.
      */
-    public $modelClass = 'luya\scheduler\models\Job';
+    public $modelClass = '\luya\scheduler\models\Job';
 
 	public function init()
 	{
@@ -23,15 +23,5 @@ class JobController extends \luya\admin\ngrest\base\Api
 		$this->modelClass = $jobType->class;
 
 		parent::init();
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function actions()
-	{
-		$actions = parent::actions();
-
-		return $actions;
 	}
 }
