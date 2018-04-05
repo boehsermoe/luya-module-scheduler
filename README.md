@@ -21,19 +21,19 @@ return [
 ## Start jobs
 
 Start all expired jobs manual:
-```
+```shell
 ./luya scheduler/run
 ```
 
 Execute one job:
-```
+```shell
 ./luya scheduler/run/now
 ```
 
 ## Cron
 
 Start all expired jobs every minute via cron:
-```
+```shell
 * * * * * ./luya scheduler/run
 ```
 
@@ -43,7 +43,7 @@ Start all expired jobs every minute via cron:
 Create a class in the path "{appBasePath}/schedulers" or "{moduleBasePath}/schedulers"
 
 Example:
-```
+```php
 class FileJob extends BaseJob
 {
 	public $path;
