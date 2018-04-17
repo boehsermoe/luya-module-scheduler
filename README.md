@@ -17,6 +17,10 @@ return [
     ],
 ];
 ```
+```shell
+docker-compose exec luya_php luya migrate
+docker-compose exec luya_php luya import
+```
 
 ## Start jobs
 
