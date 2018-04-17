@@ -182,7 +182,6 @@ abstract class BaseJob extends NgRestModel
 		if ($schedule) {
 			$this->schedule = $schedule;
 		};
-		var_dump($this->schedule);die;
 
 		return parent::beforeValidate();
 	}
