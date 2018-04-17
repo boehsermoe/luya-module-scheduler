@@ -12,6 +12,9 @@
       "homepage" : "https://github.com/boehsermoe"
     }
   ],
+  "require": {
+    "psr/log" : "~1.0.0"
+  },
   "autoload" : {
     "psr-4" : {
       "luya\\scheduler\\" : "src/"
