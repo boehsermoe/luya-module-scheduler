@@ -106,8 +106,10 @@ abstract class BaseJob extends NgRestModel
 		    [['schedule_unit'], 'string'],
 
 		    [['name', 'class'], 'string', 'max' => 255],
-		    [['name', 'schedule'], 'required'],
+		    [['name', 'schedule', 'class'], 'required'],
 		    [['name'], 'unique'],
+
+            [['class'], 'string'],
 		    [$this->extraFields(), 'safe'],
 	    ];
     }
@@ -127,6 +129,7 @@ abstract class BaseJob extends NgRestModel
     {
         return [
             'name' => 'text',
+            'class' => 'text',
 //	        'schedule' => ['class' => ScheduleTimePlugin::className()],
             'schedule' => 'text',
 	        'schedule_value' => 'number',

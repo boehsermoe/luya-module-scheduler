@@ -18,11 +18,12 @@ final class Job extends BaseJob
 	 */
 	public function ngRestScopes()
 	{
-		$options = array_merge(['name', 'schedule'], $this->extraFields());
+		$options = array_merge(['name', 'class', 'schedule'], $this->extraFields());
 
 		return [
 			['list', $options],
 			['delete', false],
 		];
 	}
+
 }

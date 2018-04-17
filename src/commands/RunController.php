@@ -5,6 +5,7 @@ namespace luya\scheduler\commands;
 use luya\scheduler\models\BaseJob;
 use luya\backup\Module;
 use luya\helpers\Json;
+use luya\scheduler\models\Job;
 use yii\helpers\Console;
 
 /**
@@ -33,7 +34,7 @@ class RunController extends \luya\console\Command
 					$this->outputSuccess("Finished job {$job->fullName}");
 				}
 				catch (\Throwable $ex) {
-					$this->outputError("Job {$job->name} failed: " . $ex->getMessage());
+					$this->outputError("Job {$job->name} failed: " . $ex->__toString());
 				}
 
 			}
