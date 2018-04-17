@@ -15,7 +15,7 @@ use luya\scheduler\models\JobType;
 class Module extends \luya\admin\base\Module
 {
 	public $apis = [
-		'api-scheduler-job' => 'luya\scheduler\apis\JobController',
+		'api-scheduler-job-job' => 'luya\scheduler\apis\JobController',
 		'api-scheduler-jobtype' => 'luya\scheduler\apis\JobTypeController',
 //		'api-scheduler-execute' => 'luya\scheduler\apis\ExecuteJobController',
 	];
@@ -27,11 +27,11 @@ class Module extends \luya\admin\base\Module
 	{
 		parent::init();
 
-		if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
-			/** @var JobType[] $jobTypes */
-			$this->jobTypes = JobType::find()->all();
-			foreach ($this->jobTypes as $jobType) {
-				$this->apis['api-scheduler-job-' . $jobType->name] = 'luya\scheduler\apis\JobController';
+        if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
+            /** @var JobType[] $jobTypes */
+            $this->jobTypes = JobType::find()->all();
+            foreach ($this->jobTypes as $jobType) {
+				$this->apis['api-scheduler-job-' . strtolower($jobType->name)] = 'luya\scheduler\apis\JobController';
 			}
 		}
 	}
@@ -40,17 +40,17 @@ class Module extends \luya\admin\base\Module
 	{
 		$adminMenuBuilder = (new \luya\admin\components\AdminMenuBuilder($this))
 			->node('Scheduler', 'schedule')
-			->group('Jobs');
+			->group('Jobs')
+            ->itemApi('Jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job-job');
 
-		foreach ($this->jobTypes as $jobType) {
-			$adminMenuBuilder->itemApi($jobType->name, $this->uniqueId . '/job/index?jobTypeClass=' . $jobType->class, 'label', 'api-scheduler-job-' . $jobType->name);
-		}
+        foreach ($this->jobTypes as $jobType) {
+            $adminMenuBuilder->itemApi($jobType->name, $this->uniqueId . '/job/index?jobTypeClass=' . $jobType->class, 'label', 'api-scheduler-job-' . strtolower($jobType->name));
+        }
 
 
 //			->itemRoute("History", 'backup/scheduler/history', "poll")
 
-
-		return $adminMenuBuilder;
+        return $adminMenuBuilder;
 	}
 
 	/**

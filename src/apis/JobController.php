@@ -18,9 +18,10 @@ class JobController extends \luya\admin\ngrest\base\Api
 	public function init()
 	{
 		$jobTypeName = end(explode('-', $this->id));
-		$jobType = JobType::findOne(['name' => $jobTypeName]);
-
-		$this->modelClass = $jobType->class;
+        if ($jobTypeName != 'job') {
+            $jobType = JobType::findOne(['name' => $jobTypeName]);
+            $this->modelClass = $jobType->class;
+        }
 
 		parent::init();
 	}

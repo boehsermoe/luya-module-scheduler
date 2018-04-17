@@ -59,7 +59,7 @@ abstract class BaseJob extends NgRestModel
 	 */
 	public static function ngRestApiEndpoint()
 	{
-		return 'api-scheduler-job-' . self::label();
+		return 'api-scheduler-job-' . strtolower(self::label());
 	}
 
 	public static function instantiate($row)
