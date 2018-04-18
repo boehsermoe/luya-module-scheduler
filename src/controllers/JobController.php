@@ -11,15 +11,15 @@ use Yii;
  */
 class JobController extends \luya\admin\ngrest\base\Controller
 {
-	/**
-	 * @var string The path to the model which is the provider for the rules and fields.
-	 */
-	public $modelClass = 'luya\scheduler\models\Job';
+    /**
+     * @var string The path to the model which is the provider for the rules and fields.
+     */
+    public $modelClass = 'luya\scheduler\models\Job';
 
     public function actionIndex($inline = false, $relation = false, $arrayIndex = false, $modelClass = false, $modelSelection = false)
-	{
-		$this->modelClass = Yii::$app->request->get('jobTypeClass', Job::class);
+    {
+        $this->modelClass = Yii::$app->request->get('jobTypeClass', Job::class);
 
-		return parent::actionIndex($inline, $relation, $arrayIndex, $modelClass, $modelSelection);
-	}
+        return parent::actionIndex($inline, $relation, $arrayIndex, $modelClass, $modelSelection);
+    }
 }

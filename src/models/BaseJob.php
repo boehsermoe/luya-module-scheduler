@@ -19,8 +19,8 @@ use yii\helpers\VarDumper;
 
 /**
  * Job.
- * 
- * File has been created with `crud/create` command. 
+ *
+ * File has been created with `crud/create` command.
  *
  * @property integer $id
  * @property string $name
@@ -34,14 +34,14 @@ use yii\helpers\VarDumper;
  */
 abstract class BaseJob extends NgRestModel
 {
-	use LoggerTrait;
+    use LoggerTrait;
 
-	protected static $loadAllClasses = false;
+    protected static $loadAllClasses = false;
 
-	public $schedule_value;
-	public $schedule_unit;
+    public $schedule_value;
+    public $schedule_unit;
 
-	/**
+    /**
      * @inheritdoc
      */
     public static function tableName()
@@ -49,39 +49,39 @@ abstract class BaseJob extends NgRestModel
         return 'scheduler_job';
     }
 
-	public static function label()
+    public static function label()
     {
-	    return \yii\helpers\StringHelper::basename(static::class);
+        return \yii\helpers\StringHelper::basename(static::class);
     }
 
-	/**
-	 * @inheritdoc
-	 */
-	public static function ngRestApiEndpoint()
-	{
-		return 'api-scheduler-job-' . strtolower(self::label());
-	}
+    /**
+     * @inheritdoc
+     */
+    public static function ngRestApiEndpoint()
+    {
+        return 'api-scheduler-job-' . strtolower(self::label());
+    }
 
-	public static function instantiate($row)
-	{
-		$class = $row['class'];
-		return new $class();
-	}
+    public static function instantiate($row)
+    {
+        $class = $row['class'];
+        return new $class();
+    }
 
-	public static function ngRestFind()
-	{
-		$query = parent::ngRestFind();
+    public static function ngRestFind()
+    {
+        $query = parent::ngRestFind();
 
-		if (!static::$loadAllClasses) {
-			$query->andWhere([
-				'class' => static::class
-			]);
-		}
+        if (!static::$loadAllClasses) {
+            $query->andWhere([
+                'class' => static::class
+            ]);
+        }
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
+    /**
      * @inheritdoc
      */
     public function attributeLabels()
@@ -89,32 +89,32 @@ abstract class BaseJob extends NgRestModel
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
-	        'class' => Yii::t('app', 'Class'),
-	        'schedule' => Yii::t('app', 'Schedule'),
+            'class' => Yii::t('app', 'Class'),
+            'schedule' => Yii::t('app', 'Schedule'),
             'options' => Yii::t('app', 'Options'),
         ];
     }
 
-	/**
+    /**
      * @inheritdoc
      */
     public function rules()
     {
-	    return [
-		    [['schedule'], 'string'],
-		    [['schedule_value'], 'integer'],
-		    [['schedule_unit'], 'string'],
+        return [
+            [['schedule'], 'string'],
+            [['schedule_value'], 'integer'],
+            [['schedule_unit'], 'string'],
 
-		    [['name', 'class'], 'string', 'max' => 255],
-		    [['name', 'schedule', 'class'], 'required'],
-		    [['name'], 'unique'],
+            [['name', 'class'], 'string', 'max' => 255],
+            [['name', 'schedule', 'class'], 'required'],
+            [['name'], 'unique'],
 
             [['class'], 'string'],
-		    [$this->extraFields(), 'safe'],
-	    ];
+            [$this->extraFields(), 'safe'],
+        ];
     }
 
-	/**
+    /**
      * @inheritdoc
      */
     public function genericSearchFields()
@@ -122,7 +122,7 @@ abstract class BaseJob extends NgRestModel
         return ['name', 'class', 'schedule', 'options'];
     }
 
-	/**
+    /**
      * @inheritdoc
      */
     public function ngRestAttributeTypes()
@@ -132,184 +132,181 @@ abstract class BaseJob extends NgRestModel
             'class' => 'text',
 //	        'schedule' => ['class' => ScheduleTimePlugin::className()],
             'schedule' => 'text',
-	        'schedule_value' => 'number',
-	        'schedule_unit' => ['selectArray', 'data' => [
-		        ScheduleTimePlugin::UNIT_MINUTE => Yii::t('app', 'Minute'),
-		        ScheduleTimePlugin::UNIT_HOUR => Yii::t('app', 'Hour'),
-		        ScheduleTimePlugin::UNIT_DAY => Yii::t('app', 'Day'),
-		        ScheduleTimePlugin::UNIT_WEEK => Yii::t('app', 'Week'),
-	        ]],
+            'schedule_value' => 'number',
+            'schedule_unit' => ['selectArray', 'data' => [
+                ScheduleTimePlugin::UNIT_MINUTE => Yii::t('app', 'Minute'),
+                ScheduleTimePlugin::UNIT_HOUR => Yii::t('app', 'Hour'),
+                ScheduleTimePlugin::UNIT_DAY => Yii::t('app', 'Day'),
+                ScheduleTimePlugin::UNIT_WEEK => Yii::t('app', 'Week'),
+            ]],
         ];
     }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function ngRestActiveWindows()
-	{
-		return [
-			[
-				'class' => DetailViewActiveWindow::class,
-			],
-		];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function ngRestActiveWindows()
+    {
+        return [
+            [
+                'class' => DetailViewActiveWindow::class,
+            ],
+        ];
+    }
 
-	/**
+    /**
      * @inheritdoc
      */
     public function ngRestScopes()
     {
-    	$editOptions = array_merge(['name', 'schedule_value', 'schedule_unit'], $this->extraFields());
+        $editOptions = array_merge(['name', 'schedule_value', 'schedule_unit'], $this->extraFields());
 
         return [
             ['list', array_merge(['name', 'schedule'], $this->extraFields())],
-	        [['create'], $editOptions],
-	        [['update'], $editOptions],
+            [['create'], $editOptions],
+            [['update'], $editOptions],
             ['delete', false],
         ];
     }
 
-	public function __toString()
-	{
-		return Json::encode($this);
-	}
+    public function __toString()
+    {
+        return Json::encode($this);
+    }
 
-	public function getFullName()
-	{
-		return "{$this->name} - {$this->id} ({$this->class}";
-	}
+    public function getFullName()
+    {
+        return "{$this->name} - {$this->id} ({$this->class}";
+    }
 
-	public function beforeValidate()
-	{
-		$schedule = trim(implode(' ', [$this->schedule_value, $this->schedule_unit]));
-		if ($schedule) {
-			$this->schedule = $schedule;
-		};
+    public function beforeValidate()
+    {
+        $schedule = trim(implode(' ', [$this->schedule_value, $this->schedule_unit]));
+        if ($schedule) {
+            $this->schedule = $schedule;
+        };
 
-		return parent::beforeValidate();
-	}
+        return parent::beforeValidate();
+    }
 
 
-	public function beforeSave($insert)
-	{
-		$this->class = static::class;
-		$this->options = Json::encode($this->getAttributes($this->extraFields()));
+    public function beforeSave($insert)
+    {
+        $this->class = static::class;
+        $this->options = Json::encode($this->getAttributes($this->extraFields()));
 
-		$schedule = trim(implode(' ', [$this->schedule_value, $this->schedule_unit]));
-		if ($schedule) {
-			$this->schedule = $schedule;
-		};
+        $schedule = trim(implode(' ', [$this->schedule_value, $this->schedule_unit]));
+        if ($schedule) {
+            $this->schedule = $schedule;
+        };
 
-		return parent::beforeSave($insert);
-	}
+        return parent::beforeSave($insert);
+    }
 
-	public function afterFind()
-	{
-		$this->options = Json::decode($this->options);
-		$this->setAttributes($this->options);
+    public function afterFind()
+    {
+        $this->options = Json::decode($this->options);
+        $this->setAttributes($this->options);
 
-		list($this->schedule_value, $this->schedule_unit) = explode(' ', $this->schedule);
+        list($this->schedule_value, $this->schedule_unit) = explode(' ', $this->schedule);
 
-		return parent::afterFind();
-	}
+        return parent::afterFind();
+    }
 
-	public function attributes()
-	{
-		return array_merge(parent::attributes(), $this->extraFields());
-	}
+    public function attributes()
+    {
+        return array_merge(parent::attributes(), $this->extraFields());
+    }
 
-	public function setAttribute($name, $value)
-	{
-		if (in_array($name, $this->extraFields())) {
-//			$this->$name = $value;
-		}
-		elseif ($this->hasProperty($name)) {
-			$this->$name = $value;
-		}
-		else {
-			parent::setAttribute($name, $value);
-		}
-	}
+    public function setAttribute($name, $value)
+    {
+        if (in_array($name, $this->extraFields())) {
+            //			$this->$name = $value;
+        } elseif ($this->hasProperty($name)) {
+            $this->$name = $value;
+        } else {
+            parent::setAttribute($name, $value);
+        }
+    }
 
-	abstract public function run();
+    abstract public function run();
 
-	public function needRun()
-	{
-		$nextSchedule = $this->getNextSchedule();
+    public function needRun()
+    {
+        $nextSchedule = $this->getNextSchedule();
 
-		return $nextSchedule <= time();
-	}
+        return $nextSchedule <= time();
+    }
 
-	private $nextSchedule = null;
+    private $nextSchedule = null;
 
-	/**
-	 * @return int Timestamp
-	 */
-	public function getNextSchedule()
-	{
-		if ($this->nextSchedule == null) {
-			if (!is_null($this->last_run)) {
-				$schedule = $this->schedule;
-				$lastRun = strtotime($this->last_run);
-				$nextSchedule = strtotime("+" . $schedule, $lastRun);
-				$this->nextSchedule = ceil($nextSchedule/ 60) * 60;
-			}
-			else {
-				$this->nextSchedule = time();
-			}
-		}
+    /**
+     * @return int Timestamp
+     */
+    public function getNextSchedule()
+    {
+        if ($this->nextSchedule == null) {
+            if (!is_null($this->last_run)) {
+                $schedule = $this->schedule;
+                $lastRun = strtotime($this->last_run);
+                $nextSchedule = strtotime("+" . $schedule, $lastRun);
+                $this->nextSchedule = ceil($nextSchedule/ 60) * 60;
+            } else {
+                $this->nextSchedule = time();
+            }
+        }
 
-		return $this->nextSchedule;
-	}
+        return $this->nextSchedule;
+    }
 
-	public function log($level, $message, array $context = array())
-	{
-		$datetime = date("Y-m-d H:i:s");
-		$logTemplate = "\r{$datetime} [{$this->name}] [$level]\t %s \n";
+    public function log($level, $message, array $context = array())
+    {
+        $datetime = date("Y-m-d H:i:s");
+        $logTemplate = "\r{$datetime} [{$this->name}] [$level]\t %s \n";
 
-		$log = sprintf($logTemplate, $message);
+        $log = sprintf($logTemplate, $message);
 
-		/** @var BaseJob $job */
-		$job = $this;
-		$job->log .= $log;
-		Yii::$app->db->createCommand()->update(
-				$job::tableName(),
-				['log' => new Expression('CONCAT(`log`, :log)', ['log' => $log . "\n\r"])],
-				['id' => $job->id]
-			)
-		->execute();
+        /** @var BaseJob $job */
+        $job = $this;
+        $job->log .= $log;
+        Yii::$app->db->createCommand()->update(
+                $job::tableName(),
+                ['log' => new Expression('CONCAT(`log`, :log)', ['log' => $log . "\n\r"])],
+                ['id' => $job->id]
+            )
+        ->execute();
 
-		$this->output($level, $message, $logTemplate);
-	}
+        $this->output($level, $message, $logTemplate);
+    }
 
-	/**
-	 * @param $level
-	 * @param $message
-	 * @param $logTemplate
-	 */
-	private function output($level, $message, $logTemplate): void
-	{
-		$format = [];
-		switch ($level) {
-			case LogLevel::EMERGENCY:
-			case LogLevel::ALERT:
-			case LogLevel::CRITICAL:
-			case LogLevel::ERROR:
-				$format[] = Console::FG_RED;
-				break;
-			case LogLevel::WARNING:
-			case LogLevel::NOTICE:
-				$format[] = Console::FG_YELLOW;
-				break;
-			case LogLevel::INFO:
-				$format[] = Console::FG_BLUE;
-				break;
-			case LogLevel::DEBUG:
-				break;
-		}
+    /**
+     * @param $level
+     * @param $message
+     * @param $logTemplate
+     */
+    private function output($level, $message, $logTemplate): void
+    {
+        $format = [];
+        switch ($level) {
+            case LogLevel::EMERGENCY:
+            case LogLevel::ALERT:
+            case LogLevel::CRITICAL:
+            case LogLevel::ERROR:
+                $format[] = Console::FG_RED;
+                break;
+            case LogLevel::WARNING:
+            case LogLevel::NOTICE:
+                $format[] = Console::FG_YELLOW;
+                break;
+            case LogLevel::INFO:
+                $format[] = Console::FG_BLUE;
+                break;
+            case LogLevel::DEBUG:
+                break;
+        }
 
-		$ansiMessage = Console::ansiFormat($message, $format);
+        $ansiMessage = Console::ansiFormat($message, $format);
 
-		echo sprintf($logTemplate, $ansiMessage);
-	}
+        echo sprintf($logTemplate, $ansiMessage);
+    }
 }

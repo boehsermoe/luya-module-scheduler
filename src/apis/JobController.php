@@ -1,12 +1,13 @@
 <?php
 
 namespace luya\scheduler\apis;
+
 use luya\scheduler\models\JobType;
 
 /**
  * Job Controller.
- * 
- * File has been created with `crud/create` command. 
+ *
+ * File has been created with `crud/create` command.
  */
 class JobController extends \luya\admin\ngrest\base\Api
 {
@@ -15,14 +16,14 @@ class JobController extends \luya\admin\ngrest\base\Api
      */
     public $modelClass = '\luya\scheduler\models\Job';
 
-	public function init()
-	{
-		$jobTypeName = end(explode('-', $this->id));
+    public function init()
+    {
+        $jobTypeName = end(explode('-', $this->id));
         if ($jobTypeName != 'job') {
             $jobType = JobType::findOne(['name' => $jobTypeName]);
             $this->modelClass = $jobType->class;
         }
 
-		parent::init();
-	}
+        parent::init();
+    }
 }
