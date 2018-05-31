@@ -41,7 +41,7 @@ class Module extends \luya\admin\base\Module
         $adminMenuBuilder = (new \luya\admin\components\AdminMenuBuilder($this))
             ->node('Scheduler', 'schedule')
             ->group('Jobs')
-            ->itemApi('Jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job-job');
+            ->itemApi('All jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job-job');
 
         foreach ($this->jobTypes as $jobType) {
             $adminMenuBuilder->itemApi(
