@@ -8,39 +8,39 @@ use luya\scheduler\models\JobType;
 
 /**
  * Scheduler Admin Module.
- * 
+ *
  * @author Bennet Klarhölter <boehsermoe@me.com>
  * @since 1.0.0
  */
 class Module extends \luya\admin\base\Module
 {
-	public $apis = [
-		'api-scheduler-job-job' => 'luya\scheduler\apis\JobController',
-		'api-scheduler-jobtype' => 'luya\scheduler\apis\JobTypeController',
+    public $apis = [
+        'api-scheduler-job-job' => 'luya\scheduler\apis\JobController',
+        'api-scheduler-jobtype' => 'luya\scheduler\apis\JobTypeController',
 //		'api-scheduler-execute' => 'luya\scheduler\apis\ExecuteJobController',
-	];
+    ];
 
-	/** @var JobType[] $jobTypes */
-	private $jobTypes = [];
+    /** @var JobType[] $jobTypes */
+    private $jobTypes = [];
 
-	public function init()
-	{
-		parent::init();
+    public function init()
+    {
+        parent::init();
 
         if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
             /** @var JobType[] $jobTypes */
             $this->jobTypes = JobType::find()->all();
             foreach ($this->jobTypes as $jobType) {
-				$this->apis['api-scheduler-job-' . strtolower($jobType->name)] = 'luya\scheduler\apis\JobController';
-			}
-		}
-	}
+                $this->apis['api-scheduler-job-' . strtolower($jobType->name)] = 'luya\scheduler\apis\JobController';
+            }
+        }
+    }
 
-	public function getMenu()
-	{
-		$adminMenuBuilder = (new \luya\admin\components\AdminMenuBuilder($this))
-			->node('Scheduler', 'schedule')
-			->group('Jobs')
+    public function getMenu()
+    {
+        $adminMenuBuilder = (new \luya\admin\components\AdminMenuBuilder($this))
+            ->node('Scheduler', 'schedule')
+            ->group('Jobs')
             ->itemApi('Jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job-job');
 
         foreach ($this->jobTypes as $jobType) {
@@ -48,18 +48,18 @@ class Module extends \luya\admin\base\Module
         }
 
 
-//			->itemRoute("History", 'backup/scheduler/history', "poll")
+        //			->itemRoute("History", 'backup/scheduler/history', "poll")
 
         return $adminMenuBuilder;
-	}
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function import(ImportControllerInterface $importer)
-	{
-		return [
-			ScheduleJobImporter::class,
-		];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function import(ImportControllerInterface $importer)
+    {
+        return [
+            ScheduleJobImporter::class,
+        ];
+    }
 }

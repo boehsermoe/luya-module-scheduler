@@ -7,8 +7,8 @@ use luya\admin\ngrest\base\NgRestModel;
 
 /**
  * Job Type.
- * 
- * File has been created with `crud/create` command. 
+ *
+ * File has been created with `crud/create` command.
  *
  * @property integer $id
  * @property string $name
@@ -39,8 +39,8 @@ class JobType extends NgRestModel
     {
         return [
             'id' => Yii::t('app', 'ID'),
-	        'class' => Yii::t('app', 'Class'),
-	        'name' => Yii::t('app', 'Name'),
+            'class' => Yii::t('app', 'Class'),
+            'name' => Yii::t('app', 'Name'),
         ];
     }
 
@@ -49,9 +49,9 @@ class JobType extends NgRestModel
      */
     public function rules()
     {
-	    return [
-		    [['class', 'name'], 'required'],
-		    [['class'], 'string', 'max' => 255],
+        return [
+            [['class', 'name'], 'required'],
+            [['class'], 'string', 'max' => 255],
         ];
     }
 
@@ -69,8 +69,8 @@ class JobType extends NgRestModel
     public function ngRestAttributeTypes()
     {
         return [
-	        'class' => 'text',
-	        'name' => 'text',
+            'class' => 'text',
+            'name' => 'text',
         ];
     }
 

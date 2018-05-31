@@ -16,57 +16,52 @@ use yii\helpers\Console;
  */
 class RunController extends \luya\console\Command
 {
-	/**
-	 * Execute all expired jobs
-	 */
-	public function actionIndex()
-	{
-		/** @var Job[] $jobs */
-		$jobs = Job::find()->all();
+    /**
+     * Execute all expired jobs
+     */
+    public function actionIndex()
+    {
+        /** @var Job[] $jobs */
+        $jobs = Job::find()->all();
 
-		foreach ($jobs as $job) {
-			if ($job->needRun()) {
+        foreach ($jobs as $job) {
+            if ($job->needRun()) {
+                $this->outputSuccess("Starting job {$job->fullName}");
 
-				$this->outputSuccess("Starting job {$job->fullName}");
+                try {
+                    $job->run();
+                    $this->outputSuccess("Finished job {$job->fullName}");
+                } catch (\Throwable $ex) {
+                    $this->outputError("Job {$job->name} failed: " . $ex->__toString());
+                }
+            } else {
+                $this->output("Next schedule for job {$job->id} - {$job->name} ({$job->class}) is {$job->next}");
+            }
+        }
+    }
 
-				try {
-					$job->run();
-					$this->outputSuccess("Finished job {$job->fullName}");
-				}
-				catch (\Throwable $ex) {
-					$this->outputError("Job {$job->name} failed: " . $ex->__toString());
-				}
+    /**
+     * Execute given job.
+     *
+     * @param int|string $jobId Id oder name of job
+     */
+    public function actionNow($jobId = null)
+    {
+        if ($jobId === null) {
+            $this->outputError('Require a jobId.');
+            \Yii::$app->runAction($this->module->id . '/list');
+            return;
+        }
 
-			}
-			else {
-				$this->output("Next schedule for job {$job->id} - {$job->name} ({$job->class}) is {$job->next}");
-			}
-		}
-	}
+        /** @var BaseJob $job */
+        $job = BaseJob::find()->where(['or',
+            ['id' => $jobId],
+            ['name' => $jobId]
+        ])->one();
 
-	/**
-	 * Execute given job.
-	 *
-	 * @param int|string $jobId Id oder name of job
-	 */
-	public function actionNow($jobId = null)
-	{
-		if ($jobId === null) {
-			$this->outputError('Require a jobId.');
-			\Yii::$app->runAction($this->module->id . '/list');
-			return;
-		}
-
-		/** @var BaseJob $job */
-		$job = BaseJob::find()->where(['or',
-			['id' => $jobId],
-			['name' => $jobId]
-		])->one();
-
-		$job->log = null;
-		$job->info("Running job {$job->class}");
-		$job->run();
-		$job->info('Done.');
-
-	}
+        $job->log = null;
+        $job->info("Running job {$job->class}");
+        $job->run();
+        $job->info('Done.');
+    }
 }

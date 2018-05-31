@@ -4,8 +4,8 @@ namespace luya\scheduler\apis;
 
 /**
  * Job Type Controller.
- * 
- * File has been created with `crud/create` command. 
+ *
+ * File has been created with `crud/create` command.
  */
 class JobTypeController extends \luya\admin\ngrest\base\Api
 {
