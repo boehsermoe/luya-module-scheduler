@@ -43,42 +43,56 @@ Start all expired jobs every minute via cron:
 * * * * * ./luya scheduler/run
 ```
 
+## CommandJob: Execute commands
+
+For example you can flush the cache every hour by add a new CommandJob (Scheduler -> CommandJobs -> Add) and insert "cache/flush-all" as command.
+
+![commandjob-screen](commandjob-screen.png)
+
 
 ## Custom Jobs
 
-Create a class in the path "{appBasePath}/schedulers" or "{moduleBasePath}/schedulers"
+You can also write your own jobs classes in the path "{appBasePath}/schedulers" or "{moduleBasePath}/schedulers". Every job have to inherite from BaseJob.
 
-Example:
+
+Example for a job with a text field as option.
+
 ```php
 class FileJob extends BaseJob
 {
-	public $path;
+    public $text;
 
-	public function rules()
-	{
-		return array_merge(parent::rules(), [
-			[['path'], 'required']
-		]);
-	}
+    public function rules()
+    {
+        return array_merge(parent::rules(), [
+            [['text'], 'required']
+        ]);
+    }
 
 
-	public function extraFields()
-	{
-		return [
-			'path'
-		];
-	}
+    public function extraFields()
+    {
+        return [
+            'text'
+        ];
+    }
 
-	public function ngrestExtraAttributeTypes()
-	{
-		return [
-			'path' => 'text',
-		];
-	}
+    public function ngrestExtraAttributeTypes()
+    {
+        return [
+            'text' => 'text',
+        ];
+    }
 
-	public function run()
-	{
-		// Do your job
-	}
+    public function run()
+    {
+        // Do your job
+	//
+	// echo $this->text;
+    }
 }
 ```
+
+### More examples
+For file backups: https://github.com/boehsermoe/luya-module-backup/blob/master/src/schedules/FileBackupJob.php
+For database backups: https://github.com/boehsermoe/luya-module-backup/blob/master/src/schedules/DatanbaseBackupJob.php
