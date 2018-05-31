@@ -3,7 +3,6 @@
 namespace luya\scheduler\schedules;
 
 use luya\scheduler\models\BaseJob;
-use yii\helpers\Console;
 
 class CommandJob extends BaseJob
 {

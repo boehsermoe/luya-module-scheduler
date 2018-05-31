@@ -2,9 +2,9 @@
 
 namespace luya\scheduler\commands;
 
-use luya\scheduler\models\Job;
 use luya\backup\Module;
 use luya\helpers\Json;
+use luya\scheduler\models\Job;
 use yii\helpers\Console;
 
 /**

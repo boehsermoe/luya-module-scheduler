@@ -1,4 +1,5 @@
 <?php
+
 namespace luya\scheduler\controllers;
 
 use luya\scheduler\models\Job;
@@ -16,8 +17,13 @@ class JobController extends \luya\admin\ngrest\base\Controller
      */
     public $modelClass = 'luya\scheduler\models\Job';
 
-    public function actionIndex($inline = false, $relation = false, $arrayIndex = false, $modelClass = false, $modelSelection = false)
-    {
+    public function actionIndex(
+        $inline = false,
+        $relation = false,
+        $arrayIndex = false,
+        $modelClass = false,
+        $modelSelection = false
+    ) {
         $this->modelClass = Yii::$app->request->get('jobTypeClass', Job::class);
 
         return parent::actionIndex($inline, $relation, $arrayIndex, $modelClass, $modelSelection);

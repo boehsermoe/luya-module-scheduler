@@ -2,10 +2,10 @@
 
 namespace luya\scheduler\importers;
 
-use luya\scheduler\models\BaseJob;
-use Yii;
 use luya\console\Importer;
+use luya\scheduler\models\BaseJob;
 use luya\scheduler\models\JobType;
+use Yii;
 use yii\base\InvalidArgumentException;
 use yii\console\Exception;
 
@@ -58,7 +58,7 @@ class ScheduleJobImporter extends Importer
 
         foreach ($allJobTypes as $jobType) {
             if (!in_array($jobType->id, $exists)) {
-                $this->addLog('- Deleted jobType ID '.$jobType->id.' from database.');
+                $this->addLog('- Deleted jobType ID ' . $jobType->id . ' from database.');
                 $jobType->delete();
             }
         }
@@ -67,7 +67,7 @@ class ScheduleJobImporter extends Importer
     protected function saveJobType($fullClassName)
     {
         // ensure all classes start with trailing slash class name definition like `\foo\bar\Class`
-        $fullClassName = '\\'  . ltrim($fullClassName, '\\');
+        $fullClassName = '\\' . ltrim($fullClassName, '\\');
         $model = JobType::find()->where(['class' => $fullClassName])->one();
 
         if (!$model) {

@@ -2,11 +2,9 @@
 
 namespace luya\scheduler\commands;
 
-use luya\scheduler\models\BaseJob;
 use luya\backup\Module;
-use luya\helpers\Json;
+use luya\scheduler\models\BaseJob;
 use luya\scheduler\models\Job;
-use yii\helpers\Console;
 
 /**
  * Class SchedulerController
@@ -54,7 +52,8 @@ class RunController extends \luya\console\Command
         }
 
         /** @var BaseJob $job */
-        $job = BaseJob::find()->where(['or',
+        $job = BaseJob::find()->where([
+            'or',
             ['id' => $jobId],
             ['name' => $jobId]
         ])->one();

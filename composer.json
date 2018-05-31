@@ -1,35 +1,46 @@
 {
-  "name" : "boehsermoe/luya-module-scheduler",
-  "description" : "The LUYA Scheduler module.",
-  "type" : "luya-module",
-  "keywords" : ["php", "luya", "module", "backup", "yii2", "yii"],
+  "name": "boehsermoe/luya-module-scheduler",
+  "description": "The LUYA Scheduler module.",
+  "type": "luya-module",
+  "keywords": [
+    "php",
+    "luya",
+    "module",
+    "backup",
+    "yii2",
+    "yii"
+  ],
   "license": "MIT",
-  "homepage" : "http://luya.io",
-  "authors" : [
+  "homepage": "http://luya.io",
+  "authors": [
     {
-      "name" : "Bennet Klarhölter",
-      "email" : "boehsermoe@me.com",
-      "homepage" : "https://github.com/boehsermoe"
+      "name": "Bennet Klarhölter",
+      "email": "boehsermoe@me.com",
+      "homepage": "https://github.com/boehsermoe"
     }
   ],
   "require": {
-    "psr/log" : "~1.0.0"
+    "psr/log": "~1.0.0"
   },
-  "autoload" : {
-    "psr-4" : {
-      "luya\\scheduler\\" : "src/"
+  "autoload": {
+    "psr-4": {
+      "luya\\scheduler\\": "src/"
     }
   },
   "extra": {
     "branch-alias": {
       "dev-master": "1.0.x-dev"
     },
-    "luya" : {
-      "schedules" : ["src/schedules"]
+    "luya": {
+      "schedules": [
+        "src/schedules"
+      ]
     }
   },
   "config": {
-    "platform": {"php": "7.0"}
+    "platform": {
+      "php": "7.0"
+    }
   },
   "repositories": [
     {

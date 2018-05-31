@@ -4,18 +4,14 @@ namespace luya\scheduler\models;
 
 use app\modules\backup\aws\ExecuteJobActiveWindow;
 use luya\admin\aws\DetailViewActiveWindow;
-use luya\console\Controller;
+use luya\admin\ngrest\base\NgRestModel;
 use luya\scheduler\plugins\ScheduleTimePlugin;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
 use Yii;
-use luya\admin\ngrest\base\NgRestModel;
-use yii\base\ErrorException;
-use yii\db\ActiveQuery;
 use yii\db\Expression;
 use yii\helpers\Console;
 use yii\helpers\Json;
-use yii\helpers\VarDumper;
 
 /**
  * Job.
@@ -133,12 +129,15 @@ abstract class BaseJob extends NgRestModel
 //	        'schedule' => ['class' => ScheduleTimePlugin::className()],
             'schedule' => 'text',
             'schedule_value' => 'number',
-            'schedule_unit' => ['selectArray', 'data' => [
-                ScheduleTimePlugin::UNIT_MINUTE => Yii::t('app', 'Minute'),
-                ScheduleTimePlugin::UNIT_HOUR => Yii::t('app', 'Hour'),
-                ScheduleTimePlugin::UNIT_DAY => Yii::t('app', 'Day'),
-                ScheduleTimePlugin::UNIT_WEEK => Yii::t('app', 'Week'),
-            ]],
+            'schedule_unit' => [
+                'selectArray',
+                'data' => [
+                    ScheduleTimePlugin::UNIT_MINUTE => Yii::t('app', 'Minute'),
+                    ScheduleTimePlugin::UNIT_HOUR => Yii::t('app', 'Hour'),
+                    ScheduleTimePlugin::UNIT_DAY => Yii::t('app', 'Day'),
+                    ScheduleTimePlugin::UNIT_WEEK => Yii::t('app', 'Week'),
+                ]
+            ],
         ];
     }
 
@@ -250,7 +249,7 @@ abstract class BaseJob extends NgRestModel
                 $schedule = $this->schedule;
                 $lastRun = strtotime($this->last_run);
                 $nextSchedule = strtotime("+" . $schedule, $lastRun);
-                $this->nextSchedule = ceil($nextSchedule/ 60) * 60;
+                $this->nextSchedule = ceil($nextSchedule / 60) * 60;
             } else {
                 $this->nextSchedule = time();
             }
@@ -270,11 +269,11 @@ abstract class BaseJob extends NgRestModel
         $job = $this;
         $job->log .= $log;
         Yii::$app->db->createCommand()->update(
-                $job::tableName(),
-                ['log' => new Expression('CONCAT(`log`, :log)', ['log' => $log . "\n\r"])],
-                ['id' => $job->id]
-            )
-        ->execute();
+            $job::tableName(),
+            ['log' => new Expression('CONCAT(`log`, :log)', ['log' => $log . "\n\r"])],
+            ['id' => $job->id]
+        )
+            ->execute();
 
         $this->output($level, $message, $logTemplate);
     }

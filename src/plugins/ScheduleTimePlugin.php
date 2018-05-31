@@ -3,9 +3,8 @@
 namespace luya\scheduler\plugins;
 
 use luya\admin\base\TypesInterface;
-use Yii;
-use luya\helpers\ArrayHelper;
 use luya\admin\ngrest\base\Plugin;
+use Yii;
 
 class ScheduleTimePlugin extends Plugin
 {

@@ -2,8 +2,6 @@
 
 namespace luya\scheduler\models;
 
-use luya\admin\ngrest\base\NgRestModel;
-
 final class Job extends BaseJob
 {
     protected static $loadAllClasses = true;

@@ -2,8 +2,8 @@
 
 namespace luya\scheduler\models;
 
-use Yii;
 use luya\admin\ngrest\base\NgRestModel;
+use Yii;
 
 /**
  * Job Type.

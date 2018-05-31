@@ -44,7 +44,11 @@ class Module extends \luya\admin\base\Module
             ->itemApi('Jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job-job');
 
         foreach ($this->jobTypes as $jobType) {
-            $adminMenuBuilder->itemApi($jobType->name, $this->uniqueId . '/job/index?jobTypeClass=' . $jobType->class, 'label', 'api-scheduler-job-' . strtolower($jobType->name));
+            $adminMenuBuilder->itemApi(
+                $jobType->name,
+                $this->uniqueId . '/job/index?jobTypeClass=' . $jobType->class, 'label',
+                'api-scheduler-job-' . strtolower($jobType->name)
+            );
         }
 
 
