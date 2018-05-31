@@ -43,7 +43,7 @@ Start all expired jobs every minute via cron:
 
 ## CommandJob: Execute commands
 
-For example you can flush the cache every hour by add a new CommandJob (Scheduler -> CommandJobs -> Add) and insert "cache/flush-all" as command.
+For example you can flush the cache every hour by add a new CommandJob (Scheduler -> CommandJobs -> Add) and insert "cache/flush-all" as command. The command is the route of the console command.
 
 ![commandjob-screen](commandjob-screen.png)
 
