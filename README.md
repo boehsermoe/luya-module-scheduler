@@ -22,7 +22,7 @@ docker-compose exec luya_php luya migrate
 docker-compose exec luya_php luya import
 ```
 
-## Start jobs
+## Start jobs manuell via CLI
 
 Start all expired jobs manual:
 ```shell
@@ -34,7 +34,7 @@ Execute one job:
 ./luya scheduler/run/now
 ```
 
-## Cron
+## Start jobs by cron
 
 Start all expired jobs every minute via cron:
 ```shell
@@ -52,11 +52,20 @@ For example you can flush the cache every hour by add a new CommandJob (Schedule
 
 You can also write your own jobs classes in the path "{appBasePath}/schedulers" or "{moduleBasePath}/schedulers". Every job have to inherite from BaseJob.
 
+```php
+class ExampleJob extends \luya\scheduler\models\BaseJob
+{
+    public function run()
+    {
+        // Do your job.
+    }
+}
+```
 
-Example for a job with a text field as option.
+A job with a text field as option could look like this:
 
 ```php
-class FileJob extends BaseJob
+class ExampleTextJob extends \luya\scheduler\models\BaseJob
 {
     public $text;
 
@@ -66,7 +75,6 @@ class FileJob extends BaseJob
             [['text'], 'required']
         ]);
     }
-
 
     public function extraFields()
     {
@@ -92,5 +100,7 @@ class FileJob extends BaseJob
 ```
 
 ### More examples
+
 For file backups: https://github.com/boehsermoe/luya-module-backup/blob/master/src/schedules/FileBackupJob.php
+
 For database backups: https://github.com/boehsermoe/luya-module-backup/blob/master/src/schedules/DatanbaseBackupJob.php
