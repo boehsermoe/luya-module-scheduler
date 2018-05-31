@@ -22,8 +22,6 @@ docker-compose exec luya_php luya migrate
 docker-compose exec luya_php luya import
 ```
 
-![screen](scheduler-screen.png)
-
 ## Start jobs
 
 Start all expired jobs manual:
