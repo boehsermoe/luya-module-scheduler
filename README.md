@@ -29,9 +29,9 @@ Start all expired jobs manual:
 ./luya scheduler/run
 ```
 
-Execute one job:
-```shell
-./luya scheduler/run/now
+Execute specified job:
+```
+./luya scheduler/run/now {id/name of the job}
 ```
 
 ## Start jobs by cron
