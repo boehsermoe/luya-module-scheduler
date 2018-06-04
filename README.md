@@ -22,6 +22,8 @@ docker-compose exec luya_php luya migrate
 docker-compose exec luya_php luya import
 ```
 
+Don`t forget to assign permission to user group for the scheduler module.
+
 ## Start jobs manuell via CLI
 
 Start all expired jobs manual:
@@ -34,12 +36,21 @@ Execute specified job:
 ./luya scheduler/run/now {id/name of the job}
 ```
 
-## Start jobs by cron
+## Trigger jobs by cron
 
 Start all expired jobs every minute via cron:
 ```shell
 * * * * * ./luya scheduler/run
 ```
+
+## Trigger jobs alternativ
+
+### Via Webcron
+Like [https://cron-job.org/de/](https://cron-job.org/de/) or [https://uptimerobot.com/](https://uptimerobot.com/). Or someother webcron service.
+
+### Via yii application event
+
+
 
 ## CommandJob: Execute console commands
 
