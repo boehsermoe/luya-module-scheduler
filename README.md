@@ -51,7 +51,7 @@ Start all expired jobs every minute via cron:
 
 ### Via Webcron
 
-Call the route *{Host}/scheduler/run?token={Access token from config}* to start expired jobs. You can use this url for webcrons like [https://cron-job.org/de/](https://cron-job.org/de/) or [https://uptimerobot.com/](https://uptimerobot.com/). Or any other webcron service.
+Call the route *https://{Host}/scheduler/run?token={Access token from config}* to start expired jobs. You can use this url for webcrons like [https://cron-job.org/de/](https://cron-job.org/de/) or [https://uptimerobot.com/](https://uptimerobot.com/). Or any other webcron service.
 
 ### Via yii application event
 
