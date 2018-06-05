@@ -2,10 +2,10 @@
 
 namespace luya\scheduler\models;
 
-use app\modules\backup\aws\ExecuteJobActiveWindow;
 use luya\admin\aws\DetailViewActiveWindow;
 use luya\admin\ngrest\base\NgRestModel;
-use luya\scheduler\plugins\ScheduleTimePlugin;
+use luya\Exception;
+use luya\scheduler\admin\plugins\ScheduleTimePlugin;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
 use Yii;
@@ -102,7 +102,7 @@ abstract class BaseJob extends NgRestModel
             [['schedule_unit'], 'string'],
 
             [['name', 'class'], 'string', 'max' => 255],
-            [['name', 'schedule', 'class'], 'required'],
+            [['name', 'schedule'], 'required'],
             [['name'], 'unique'],
 
             [['class'], 'string'],
@@ -206,7 +206,7 @@ abstract class BaseJob extends NgRestModel
     {
         $this->options = Json::decode($this->options);
         $this->setAttributes($this->options);
-
+        
         list($this->schedule_value, $this->schedule_unit) = explode(' ', $this->schedule);
 
         return parent::afterFind();
@@ -216,11 +216,31 @@ abstract class BaseJob extends NgRestModel
     {
         return array_merge(parent::attributes(), $this->extraFields());
     }
-
+    
+    /**
+     * @inheritdoc
+     */
+    public function setAttributes($values, $safeOnly = true)
+    {
+        if (is_array($values)) {
+            $attributes = array_flip($safeOnly ? $this->safeAttributes() : $this->attributes());
+            foreach ($values as $name => $value) {
+                if (isset($attributes[$name])) {
+                    parent::setAttribute($name, $value);
+                } elseif ($safeOnly) {
+                    $this->onUnsafeAttribute($name, $value);
+                }
+            }
+        }
+    }
+    
+    /**
+     * @inheritdoc
+     */
     public function setAttribute($name, $value)
     {
         if (in_array($name, $this->extraFields())) {
-            //			$this->$name = $value;
+            $this->$name = $value;
         } elseif ($this->hasProperty($name)) {
             $this->$name = $value;
         } else {

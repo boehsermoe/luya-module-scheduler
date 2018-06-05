@@ -1,8 +1,8 @@
 <?php
 
-namespace luya\scheduler\commands;
+namespace luya\scheduler\frontend\commands;
 
-use luya\backup\Module;
+use luya\scheduler\frontend\Module;
 use luya\helpers\Json;
 use luya\scheduler\models\Job;
 use yii\helpers\Console;

@@ -1,6 +1,6 @@
 <?php
 
-namespace luya\scheduler\controllers;
+namespace luya\scheduler\admin\controllers;
 
 use luya\scheduler\models\Job;
 use Yii;

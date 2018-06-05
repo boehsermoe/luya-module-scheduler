@@ -1,6 +1,6 @@
 <?php
 
-namespace luya\scheduler\plugins;
+namespace luya\scheduler\admin\plugins;
 
 use luya\admin\base\TypesInterface;
 use luya\admin\ngrest\base\Plugin;

@@ -1,6 +1,6 @@
 <?php
 
-namespace luya\scheduler\schedules;
+namespace luya\scheduler\admin\schedules;
 
 use luya\scheduler\models\BaseJob;
 

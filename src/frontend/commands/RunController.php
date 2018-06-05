@@ -1,8 +1,8 @@
 <?php
 
-namespace luya\scheduler\commands;
+namespace luya\scheduler\frontend\commands;
 
-use luya\backup\Module;
+use luya\scheduler\frontend\Module;
 use luya\scheduler\models\BaseJob;
 use luya\scheduler\models\Job;
 
@@ -19,23 +19,7 @@ class RunController extends \luya\console\Command
      */
     public function actionIndex()
     {
-        /** @var Job[] $jobs */
-        $jobs = Job::find()->all();
-
-        foreach ($jobs as $job) {
-            if ($job->needRun()) {
-                $this->outputSuccess("Starting job {$job->fullName}");
-
-                try {
-                    $job->run();
-                    $this->outputSuccess("Finished job {$job->fullName}");
-                } catch (\Throwable $ex) {
-                    $this->outputError("Job {$job->name} failed: " . $ex->__toString());
-                }
-            } else {
-                $this->output("Next schedule for job {$job->id} - {$job->name} ({$job->class}) is {$job->next}");
-            }
-        }
+        $this->module->runExpiredJobs();
     }
 
     /**

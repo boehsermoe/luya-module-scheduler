@@ -1,8 +1,9 @@
 <?php
 
-namespace luya\scheduler\importers;
+namespace luya\scheduler\admin\importers;
 
 use luya\console\Importer;
+use luya\helpers\FileHelper;
 use luya\scheduler\models\BaseJob;
 use luya\scheduler\models\JobType;
 use Yii;

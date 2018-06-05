@@ -1,9 +1,9 @@
 <?php
 
-namespace luya\scheduler;
+namespace luya\scheduler\admin;
 
 use luya\console\interfaces\ImportControllerInterface;
-use luya\scheduler\importers\ScheduleJobImporter;
+use luya\scheduler\admin\importers\ScheduleJobImporter;
 use luya\scheduler\models\JobType;
 
 /**
@@ -15,9 +15,9 @@ use luya\scheduler\models\JobType;
 class Module extends \luya\admin\base\Module
 {
     public $apis = [
-        'api-scheduler-job-job' => 'luya\scheduler\apis\JobController',
-        'api-scheduler-jobtype' => 'luya\scheduler\apis\JobTypeController',
-//		'api-scheduler-execute' => 'luya\scheduler\apis\ExecuteJobController',
+        'api-scheduler-job-job' => 'luya\scheduler\admin\apis\JobController',
+        'api-scheduler-jobtype' => 'luya\scheduler\admin\apis\JobTypeController',
+//		'api-scheduler-execute' => 'luya\scheduler\admin\apis\ExecuteJobController',
     ];
 
     /** @var JobType[] $jobTypes */
@@ -27,13 +27,13 @@ class Module extends \luya\admin\base\Module
     {
         parent::init();
 
-        if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
-            /** @var JobType[] $jobTypes */
-            $this->jobTypes = JobType::find()->all();
-            foreach ($this->jobTypes as $jobType) {
-                $this->apis['api-scheduler-job-' . strtolower($jobType->name)] = 'luya\scheduler\apis\JobController';
-            }
-        }
+//        if (\Yii::$app->db->getTableSchema(JobType::tableName())) {
+//            /** @var JobType[] $jobTypes */
+//            $this->jobTypes = JobType::find()->all();
+//            foreach ($this->jobTypes as $jobType) {
+//                $this->apis['api-scheduler-job-' . strtolower($jobType->name)] = 'luya\scheduler\admin\apis\JobController';
+//            }
+//        }
     }
 
     public function getMenu()
@@ -43,6 +43,7 @@ class Module extends \luya\admin\base\Module
             ->group('Jobs')
             ->itemApi('All jobs', $this->uniqueId . '/job/index', 'label', 'api-scheduler-job-job');
 
+        
         foreach ($this->jobTypes as $jobType) {
             $adminMenuBuilder->itemApi(
                 $jobType->name,

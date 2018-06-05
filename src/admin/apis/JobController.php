@@ -1,6 +1,6 @@
 <?php
 
-namespace luya\scheduler\apis;
+namespace luya\scheduler\admin\apis;
 
 use luya\scheduler\models\JobType;
 
