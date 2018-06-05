@@ -10,8 +10,12 @@ In order to add the modules to your project go into the modules section of your 
 return [
     'modules' => [
         // ...
+	'scheduleradmin' => [
+            'class' => 'luya\scheduler\admin\Module',
+        ],
         'scheduler' => [
-            'class' => 'luya\scheduler\Module',
+            'class' => 'luya\scheduler\frontend\Module',
+	    'accessToken' => '{token for web access}' // optional for webcron
         ],
         // ...
     ],
@@ -21,6 +25,8 @@ return [
 docker-compose exec luya_php luya migrate
 docker-compose exec luya_php luya import
 ```
+
+Don`t forget to assign permission to user group for the scheduler module.
 
 ## Start jobs manuell via CLI
 
@@ -34,11 +40,30 @@ Execute specified job:
 ./luya scheduler/run/now {id/name of the job}
 ```
 
-## Start jobs by cron
+## Trigger jobs by cron
 
 Start all expired jobs every minute via cron:
 ```shell
 * * * * * ./luya scheduler/run
+```
+
+## Trigger jobs alternativ
+
+### Via Webcron
+
+Call the route *https://{Host}/scheduler/run?token={Access token from config}* to start expired jobs. You can use this url for webcrons like [https://cron-job.org/de/](https://cron-job.org/de/) or [https://uptimerobot.com/](https://uptimerobot.com/). Or any other webcron service.
+
+### Via yii application event
+
+```
+[
+...
+ 'on afterRequest' => function() {
+     Yii::$app->getModule('scheduler')->runExpiredJobsAsync();
+ },
+...
+]
+
 ```
 
 ## CommandJob: Execute console commands
