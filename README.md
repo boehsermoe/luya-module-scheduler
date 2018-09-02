@@ -22,8 +22,8 @@ return [
 ];
 ```
 ```shell
-docker-compose exec luya_php luya migrate
-docker-compose exec luya_php luya import
+./vendor/bin/luya migrate
+./vendor/bin/luya import
 ```
 
 Don`t forget to assign permission to user group for the scheduler module.
