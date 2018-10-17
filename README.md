@@ -55,15 +55,14 @@ Call the route *https://{Host}/scheduler/run?token={Access token from config}* t
 
 ### Via yii application event
 
-```
+```php
 [
-...
+//...
  'on afterRequest' => function() {
-     if (!$this->isCli()) {
+     if (!$this->getIsCli()) {
          Yii::$app->getModule('scheduler')->runExpiredJobsAsync();
      }
  },
-...
 ]
 
 ```
